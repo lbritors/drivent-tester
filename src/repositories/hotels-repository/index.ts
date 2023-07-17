@@ -10,7 +10,7 @@ async function getHotels() {
 }
 
 async function getHotelsWithRooms(hotelId: number) {
-  return prisma.hotel.findMany({
+  return prisma.hotel.findFirst({
     where: {
       id: hotelId,
     },
