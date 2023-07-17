@@ -30,9 +30,26 @@ async function getHotelWithRooms(userId: number, hotelId: number) {
   if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel || ticket.status !== 'PAID') {
     throw paymentRequiredError();
   }
+
   const hotelsWithRooms = await hotelsRepository.getHotelsWithRooms(hotelId);
   if (!hotelsWithRooms || hotelsWithRooms === null) throw notFoundError();
-  return hotelsWithRooms;
+  return {
+    id: hotelsWithRooms.id,
+    name: hotelsWithRooms.name,
+    image: hotelsWithRooms.image,
+    createdAt: hotelsWithRooms.createdAt,
+    updatedAt: hotelsWithRooms.updatedAt,
+    Rooms: [
+      {
+        id: hotelsWithRooms.Rooms[0].id,
+        name: hotelsWithRooms.Rooms[0].name,
+        capacity: hotelsWithRooms.Rooms[0].capacity,
+        hotelId: hotelsWithRooms.Rooms[0].hotelId,
+        createdAt: hotelsWithRooms.Rooms[0].createdAt,
+        updatedAt: hotelsWithRooms.Rooms[0].updatedAt,
+      },
+    ],
+  };
 }
 
 const hotelsService = {
