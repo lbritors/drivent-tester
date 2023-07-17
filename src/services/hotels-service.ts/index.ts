@@ -10,10 +10,12 @@ async function getHotels(userId: number): Promise<Hotel[]> {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
   if (!enrollment) throw notFoundError();
   const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
-  if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) throw paymentRequiredError();
-  if (ticket.status !== 'PAID') throw paymentRequiredError();
+  if (!ticket || ticket === null) throw notFoundError();
+  if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel || ticket.status !== 'PAID') {
+    throw paymentRequiredError();
+  }
   const hotels = await hotelsRepository.getHotels();
-  if (!ticket || !hotels) throw notFoundError();
+  if (!hotels || hotels.length === 0) throw notFoundError();
 
   return hotels;
 }
@@ -22,10 +24,11 @@ async function getHotelWithRooms(userId: number, hotelId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
   if (!enrollment) throw notFoundError();
   const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
-  if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) throw paymentRequiredError();
-  if (ticket.status !== 'PAID') throw paymentRequiredError();
+  if (!ticket || ticket === null) throw notFoundError();
+  if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel || ticket.status !== 'PAID') {
+    throw paymentRequiredError();
+  }
   const hotelsWithRooms = await hotelsRepository.getHotelsWithRooms(hotelId);
-  if (!ticket) throw notFoundError();
   if (!hotelsWithRooms || hotelsWithRooms.length === 0) throw notFoundError();
   return hotelsWithRooms;
 }

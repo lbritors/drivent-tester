@@ -12,22 +12,22 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
     res.status(httpStatus.OK).send(hotels);
   } catch (err) {
     if (err.name === 'PaymentRequiredError') return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
-    if (err.name === 'NotFoudError') return res.sendStatus(httpStatus.NOT_FOUND);
-    res.sendStatus(httpStatus.BAD_REQUEST);
+    if (err.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
+    return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
 
 export async function getHotelWithRooms(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.userId;
-    const hotelId = Number(req.params.hotelId);
-    const hotel = await hotelsService.getHotelWithRooms(userId, hotelId);
+    const hotelId = req.params.hotelId;
+    const hotel = await hotelsService.getHotelWithRooms(userId, Number(hotelId));
     if (!userId) return res.sendStatus(httpStatus.BAD_REQUEST);
     if (!hotelId) return res.sendStatus(httpStatus.BAD_REQUEST);
     res.status(httpStatus.OK).send(hotel);
   } catch (err) {
     if (err.name === 'PaymentRequiredError') return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
-    if (err.name === 'NotFoudError') return res.sendStatus(httpStatus.NOT_FOUND);
+    if (err.name === 'NotFoundError') return res.sendStatus(httpStatus.NOT_FOUND);
     res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
