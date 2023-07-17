@@ -1,8 +1,6 @@
 import { Response } from 'express';
 import httpStatus from 'http-status';
 import { AuthenticatedRequest } from '@/middlewares';
-import enrollmentsService from '@/services/enrollments-service';
-import ticketService from '@/services/tickets-service';
 import hotelsService from '@/services/hotels-service.ts';
 
 export async function getHotels(req: AuthenticatedRequest, res: Response) {

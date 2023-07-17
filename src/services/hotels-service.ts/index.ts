@@ -5,6 +5,7 @@ import enrollmentRepository from '@/repositories/enrollment-repository';
 import hotelsRepository from '@/repositories/hotels-repository';
 import { paymentRequiredError } from '@/errors/payment-required-error';
 import ticketsRepository from '@/repositories/tickets-repository';
+import { badRequestError } from '@/errors/bad-request-error';
 
 async function getHotels(userId: number): Promise<Hotel[]> {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
@@ -21,6 +22,7 @@ async function getHotels(userId: number): Promise<Hotel[]> {
 }
 
 async function getHotelWithRooms(userId: number, hotelId: number) {
+  if (hotelId <= 0 || typeof hotelId === 'string') throw badRequestError();
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
   if (!enrollment) throw notFoundError();
   const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);

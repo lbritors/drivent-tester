@@ -1,9 +1,11 @@
+import exp from 'constants';
 import faker from '@faker-js/faker';
 import supertest from 'supertest';
 import httpStatus from 'http-status';
 import * as jwt from 'jsonwebtoken';
 import { cleanDb, generateValidToken } from '../helpers';
 import { createEnrollmentWithAddress, createTicket, createTicketType, createUser } from '../factories';
+import { createHotel } from '../factories/hotels.factory';
 import app, { init } from '@/app';
 
 beforeAll(async () => {
@@ -76,11 +78,30 @@ describe('when token is valid', () => {
     const user = await createUser();
     const token = await generateValidToken(user);
     const enrollment = await createEnrollmentWithAddress(user);
-    const ticketType = await createTicketType(true, false);
+    const ticketType = await createTicketType(false, false);
     const ticket = await createTicket(enrollment.id, ticketType.id, 'PAID');
 
     const response = await api.get('/hotels').set('Authorization', `Bearer ${token}`);
     expect(response.status).toBe(httpStatus.PAYMENT_REQUIRED);
+  });
+  it('should return 200 with a list of hotels', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    const enrollment = await createEnrollmentWithAddress(user);
+    const ticketType = await createTicketType(false, true);
+    const ticket = await createTicket(enrollment.id, ticketType.id, 'PAID');
+    const hotel = await createHotel(faker.company.companyName(), faker.image.imageUrl());
+    const response = await api.get('/hotels').set('Authorization', `Bearer ${token}`).send(hotel);
+    const room = hotel.Rooms[0];
+    expect(response.status).toBe(httpStatus.OK);
+    expect(response.body).toEqual([
+      {
+        ...hotel,
+        createdAt: hotel.createdAt.toISOString(),
+        updatedAt: hotel.updatedAt.toISOString(),
+        Rooms: [{ ...room, createdAt: room.createdAt.toISOString(), updatedAt: room.updatedAt.toISOString() }],
+      },
+    ]);
   });
 });
 
@@ -159,5 +180,24 @@ describe('when token is valid', () => {
     const ticket = await createTicket(enrollment.id, ticketType.id, 'PAID');
     const response = await api.get('/hotels/-1').set('Authorization', `Bearer ${token}`);
     expect(response.status).toBe(httpStatus.BAD_REQUEST);
+  });
+  it('should return 200 with a list of hotels', async () => {
+    const user = await createUser();
+    const token = await generateValidToken(user);
+    const enrollment = await createEnrollmentWithAddress(user);
+    const ticketType = await createTicketType(false, true);
+    const ticket = await createTicket(enrollment.id, ticketType.id, 'PAID');
+    const hotel = await createHotel(faker.company.companyName(), faker.image.imageUrl());
+    const response = await api.get(`/hotels/${hotel.id}`).set('Authorization', `Bearer ${token}`).send(hotel);
+    const room = hotel.Rooms[0];
+    expect(response.status).toBe(httpStatus.OK);
+    expect(response.body).toEqual([
+      {
+        ...hotel,
+        createdAt: hotel.createdAt.toISOString(),
+        updatedAt: hotel.updatedAt.toISOString(),
+        Rooms: [{ ...room, createdAt: room.createdAt.toISOString(), updatedAt: room.updatedAt.toISOString() }],
+      },
+    ]);
   });
 });
