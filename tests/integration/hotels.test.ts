@@ -191,13 +191,11 @@ describe('when token is valid', () => {
     const response = await api.get(`/hotels/${hotel.id}`).set('Authorization', `Bearer ${token}`).send(hotel);
     const room = hotel.Rooms[0];
     expect(response.status).toBe(httpStatus.OK);
-    expect(response.body).toEqual([
-      {
-        ...hotel,
-        createdAt: hotel.createdAt.toISOString(),
-        updatedAt: hotel.updatedAt.toISOString(),
-        Rooms: [{ ...room, createdAt: room.createdAt.toISOString(), updatedAt: room.updatedAt.toISOString() }],
-      },
-    ]);
+    expect(response.body).toEqual({
+      ...hotel,
+      createdAt: hotel.createdAt.toISOString(),
+      updatedAt: hotel.updatedAt.toISOString(),
+      Rooms: [{ ...room, createdAt: room.createdAt.toISOString(), updatedAt: room.updatedAt.toISOString() }],
+    });
   });
 });
